@@ -2,7 +2,6 @@ import sys
 import time
 
 class Match:
-    """Represents one match (CSP variable) between two teams."""
     def __init__(self, idx: int, team1: str, team2: str):
         self.idx = idx
         self.team1 = team1
@@ -34,3 +33,11 @@ def parse_input(lines: list):
 
     return S, stadiums, D, H, N, matches, K, sensitive_pairs
 
+def build_domains(matches: list, D: int, H: int, stadiums: list):
+    full_domain = [
+        (d, h, st)
+        for d in range(1, D + 1)
+        for h in range(1, H + 1)
+        for st in stadiums
+    ]
+    return {m.idx: list(full_domain) for m in matches}
