@@ -41,3 +41,15 @@ def build_domains(matches: list, D: int, H: int, stadiums: list):
         for st in stadiums
     ]
     return {m.idx: list(full_domain) for m in matches}
+
+
+def build_neighbors(matches: list, sensitive_set: set):
+  
+    neighbors = {m.idx: set() for m in matches}
+    n = len(matches)
+    for i in range(n):
+        for j in range(i + 1, n):
+            mi, mj = matches[i], matches[j]
+            neighbors[mi.idx].add(mj.idx)
+            neighbors[mj.idx].add(mi.idx)
+    return neighbors
