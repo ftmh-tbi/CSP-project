@@ -53,3 +53,27 @@ def build_neighbors(matches: list, sensitive_set: set):
             neighbors[mi.idx].add(mj.idx)
             neighbors[mj.idx].add(mi.idx)
     return neighbors
+
+
+def shares_team(m1: Match, m2: Match) -> bool:
+    return bool(m1.teams & m2.teams)
+
+
+def is_consistent(match: Match, value, assignment: dict,
+                  match_map: dict, sensitive_set: set) -> bool:
+    day, hour, stadium = value
+    for assigned_idx, assigned_val in assignment.items():
+        other = match_map[assigned_idx]
+        a_day, a_hour, a_stadium = assigned_val
+
+        if (a_day, a_hour, a_stadium) == (day, hour, stadium):
+            return False
+
+        if shares_team(match, other) and a_day == day:
+            return False
+
+        if (match.idx in sensitive_set and assigned_idx in sensitive_set
+                and a_day == day):
+            return False
+
+    return True
