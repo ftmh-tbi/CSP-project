@@ -1,0 +1,36 @@
+import sys
+import time
+
+class Match:
+    """Represents one match (CSP variable) between two teams."""
+    def __init__(self, idx: int, team1: str, team2: str):
+        self.idx = idx
+        self.team1 = team1
+        self.team2 = team2
+        self.teams = frozenset([team1, team2])
+
+    def __repr__(self):
+        return f"Match({self.team1} vs {self.team2})"
+
+def parse_input(lines: list):
+    idx = 0
+
+    S = int(lines[idx]); idx += 1
+    stadiums = lines[idx].split(); idx += 1
+    D = int(lines[idx]); idx += 1
+    H = int(lines[idx]); idx += 1
+    N = int(lines[idx]); idx += 1
+
+    matches = []
+    for i in range(N):
+        parts = lines[idx].split(); idx += 1
+        matches.append(Match(i, parts[0], parts[1]))
+
+    K = int(lines[idx]); idx += 1
+    sensitive_pairs = []
+    for _ in range(K):
+        parts = lines[idx].split(); idx += 1
+        sensitive_pairs.append(frozenset([parts[0], parts[1]]))
+
+    return S, stadiums, D, H, N, matches, K, sensitive_pairs
+
