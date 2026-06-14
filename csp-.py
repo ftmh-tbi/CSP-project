@@ -122,7 +122,7 @@ def forward_check(match: Match, value, assignment: dict,
 def undo_pruning(domains: dict, pruned: dict):
     for var_idx, removed_vals in pruned.items():
         domains[var_idx].extend(removed_vals)
-        
+
 
 def select_unassigned_variable(domains: dict, assignment: dict,
                                 neighbors: dict) -> int:
@@ -168,3 +168,11 @@ def count_eliminations(match: Match, value, domains: dict,
 
     return eliminations
 
+def order_domain_values(match: Match, domains: dict, assignment: dict,
+                         match_map: dict, sensitive_set: set) -> list:
+
+    values = list(domains[match.idx])
+    values.sort(key=lambda val: count_eliminations(
+        match, val, domains, assignment, match_map, sensitive_set
+    ))
+    return values
