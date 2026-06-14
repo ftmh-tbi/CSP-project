@@ -213,3 +213,62 @@ def backtrack_search(matches: list, domains: dict,
 
     return None
 
+def main():
+    input_data = sys.stdin.read().splitlines()
+    lines = [l for l in input_data if l.strip() != ""]
+
+    start_time = time.perf_counter()
+
+    S, stadiums, D, H, N, matches, K, sensitive_pairs = parse_input(lines)
+
+    if N > S * D * H:
+        elapsed = time.perf_counter() - start_time
+        print("No Solution")
+        print("Backtracks: 0")
+        print(f"Time: {elapsed:.3f}s")
+        return
+
+    if K > D:
+        elapsed = time.perf_counter() - start_time
+        print("No Solution")
+        print("Backtracks: 0")
+        print(f"Time: {elapsed:.3f}s")
+        return
+
+    match_map = {m.idx: m for m in matches}
+    match_teams_to_idx = {m.teams: m.idx for m in matches}
+
+    sensitive_set = set()
+    for sp in sensitive_pairs:
+        if sp not in match_teams_to_idx:
+            elapsed = time.perf_counter() - start_time
+            print("No Solution")
+            print("Backtracks: 0")
+            print(f"Time: {elapsed:.3f}s")
+            return
+        sensitive_set.add(match_teams_to_idx[sp])
+
+    domains = build_domains(matches, D, H, stadiums)
+    neighbors = build_neighbors(matches, sensitive_set)
+
+    assignment = {}
+    backtracks_counter = [0]
+
+    result = backtrack_search(matches, domains, assignment, neighbors,
+                              match_map, sensitive_set, backtracks_counter)
+
+    elapsed = time.perf_counter() - start_time
+
+    if result is None:
+        print("No Solution")
+    else:
+        for m in matches:
+            day, hour, stadium = result[m.idx]
+            print(f"{m.team1} {m.team2} {day} {hour} {stadium}")
+
+    print(f"Backtracks: {backtracks_counter[0]}")
+    print(f"Time: {elapsed:.3f}s")
+
+
+if __name__ == "__main__":
+    main()
