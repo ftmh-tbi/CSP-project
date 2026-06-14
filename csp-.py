@@ -126,7 +126,6 @@ def undo_pruning(domains: dict, pruned: dict):
 
 def select_unassigned_variable(domains: dict, assignment: dict,
                                 neighbors: dict) -> int:
-    """MRV with degree heuristic as tie-breaker."""
     unassigned = [idx for idx in domains if idx not in assignment]
 
     def mrv_key(idx):
@@ -176,3 +175,41 @@ def order_domain_values(match: Match, domains: dict, assignment: dict,
         match, val, domains, assignment, match_map, sensitive_set
     ))
     return values
+
+
+def backtrack_search(matches: list, domains: dict,
+                     assignment: dict, neighbors: dict,
+                     match_map: dict, sensitive_set: set,
+                     backtracks_counter: list):
+ 
+    if len(assignment) == len(matches):
+        return assignment
+
+    var_idx = select_unassigned_variable(domains, assignment, neighbors)
+    match = match_map[var_idx]
+
+    ordered_values = order_domain_values(
+        match, domains, assignment, match_map, sensitive_set
+    )
+
+    for value in ordered_values:
+        if is_consistent(match, value, assignment, match_map, sensitive_set):
+            assignment[var_idx] = value
+
+            pruned = forward_check(match, value, assignment, domains,
+                                   match_map, sensitive_set)
+
+            if pruned is not None:
+                result = backtrack_search(matches, domains, assignment,
+                                          neighbors, match_map, sensitive_set,
+                                          backtracks_counter)
+                if result is not None:
+                    return result
+
+            backtracks_counter[0] += 1
+            del assignment[var_idx]
+            if pruned is not None:
+                undo_pruning(domains, pruned)
+
+    return None
+
