@@ -77,3 +77,45 @@ def is_consistent(match: Match, value, assignment: dict,
             return False
 
     return True
+
+
+
+def forward_check(match: Match, value, assignment: dict,
+                  domains: dict, match_map: dict, sensitive_set: set):
+   
+    day, hour, stadium = value
+    pruned = {}
+
+    for var_idx, domain in domains.items():
+        if var_idx in assignment:
+            continue
+
+        other = match_map[var_idx]
+        to_remove = []
+
+        for val in domain:
+            v_day, v_hour, v_stadium = val
+
+            if (v_day, v_hour, v_stadium) == (day, hour, stadium):
+                to_remove.append(val)
+                continue
+
+            if shares_team(match, other) and v_day == day:
+                to_remove.append(val)
+                continue
+
+            if (match.idx in sensitive_set and var_idx in sensitive_set
+                    and v_day == day):
+                to_remove.append(val)
+                continue
+
+        if to_remove:
+            pruned[var_idx] = to_remove
+            for val in to_remove:
+                domain.remove(val)
+
+            if not domain:
+                return None
+
+    return pruned
+
