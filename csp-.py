@@ -119,3 +119,37 @@ def forward_check(match: Match, value, assignment: dict,
 
     return pruned
 
+def undo_pruning(domains: dict, pruned: dict):
+    for var_idx, removed_vals in pruned.items():
+        domains[var_idx].extend(removed_vals)
+
+def count_eliminations(match: Match, value, domains: dict,
+                        assignment: dict, match_map: dict,
+                        sensitive_set: set) -> int:
+
+    day, hour, stadium = value
+    eliminations = 0
+
+    for var_idx, domain in domains.items():
+        if var_idx in assignment:
+            continue
+
+        other = match_map[var_idx]
+        for val in domain:
+            v_day, v_hour, v_stadium = val
+
+            if (v_day, v_hour, v_stadium) == (day, hour, stadium):
+                eliminations += 1
+                continue
+
+            if shares_team(match, other) and v_day == day:
+                eliminations += 1
+                continue
+
+            if (match.idx in sensitive_set and var_idx in sensitive_set
+                    and v_day == day):
+                eliminations += 1
+                continue
+
+    return eliminations
+
